@@ -1,27 +1,67 @@
-import { StyleSheet, Text, View, Button } from "react-native";
+import { useState } from "react";
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Button
+} from "react-native";
+
+import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 
 export default function App() {
+  const [modalIsVisible, setModalIsVisible] = useState(false);
+  const [courseGoals, setCourseGoals] = useState([]);
+
+  function startAddGoalHandler() {
+    setModalIsVisible(true);
+  }
+
+  function endAddGoalHandler() {
+    setModalIsVisible(false);
+  }
+
+  function addGoalHandler(enteredGoalText) {
+    setCourseGoals((currentCourseGoals) => [
+      ...currentCourseGoals,
+      { key: Math.random().toString(), text: enteredGoalText },
+    ]);
+    endAddGoalHandler();
+  }
+
+  function deleteGoalHandler(id) {
+    setCourseGoals(currentCourseGoals => currentCourseGoals.filter(goal => goal.key !== id))
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.dummyText}>Another piece of text!</Text>
-      <Text style={styles.dummyText}>Hello World!</Text>
-      <Button title="Tap Me!" />
+    <View style={styles.appContainer}>
+      <View style={styles.addNewGoalButton}>
+        <Button title="Add New Goal" color="#2dc4ae" onPress={startAddGoalHandler} />
+      </View>
+      <GoalInput onPress={addGoalHandler} onCancel={endAddGoalHandler} visible={modalIsVisible}  />
+      <View style={styles.goalsContainer}>
+        <FlatList
+          data={courseGoals}
+          renderItem={(itemData) => {
+            return <GoalItem text={itemData.item.text} id={itemData.item.key} onPress={deleteGoalHandler} />;
+          }}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  appContainer: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    paddingTop: 50,
+    paddingHorizontal: 16,
   },
-  dummyText: {
-    margin: 16,
-    borderColor: "blue",
-    borderWidth: 2,
-    borderStyle: "dashed",
-    padding: 16,
+  goalsContainer: {
+    flex: 5,
   },
+  addNewGoalButton: {
+    marginTop: 24,
+    marginBottom: 16
+  }
 });
